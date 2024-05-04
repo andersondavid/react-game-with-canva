@@ -30,7 +30,6 @@ export const aliensZone = (ctx: CanvasRenderingContext2D) => {
   }
 
   const renderAliens = () => {
-    ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
     aliensList.forEach((alien, index) => {
       if (index == 0)
         console.log(
@@ -74,5 +73,5 @@ export const aliensZone = (ctx: CanvasRenderingContext2D) => {
 
   renderAliens();
 
-  setInterval(() => animateAliens(), 100);
+ // setInterval(() => animateAliens(), 100);
 };

@@ -1,5 +1,6 @@
 import { RefObject } from "react";
 import { aliensZone } from "./aliens-zone";
+import { hero } from "./hero";
 
 export const useGameCore = (canvasRef: RefObject<HTMLCanvasElement>) => {
   if (!canvasRef) return;
@@ -9,5 +10,5 @@ export const useGameCore = (canvasRef: RefObject<HTMLCanvasElement>) => {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
   aliensZone(ctx)
-
+  hero(ctx)
 };
