@@ -1,6 +1,6 @@
 import { RefObject } from "react";
 import { AliensZone, IAliens } from "./aliens-zone";
-import { hero } from "./hero";
+import { Hero } from "./hero";
 import { Bullet, IBullet } from "./bullet";
 
 export function GameCore(canvasRef: RefObject<HTMLCanvasElement>) {
@@ -11,7 +11,7 @@ export function GameCore(canvasRef: RefObject<HTMLCanvasElement>) {
   const ctx = canvas?.getContext("2d");
   if (!ctx) return;
 
-  let heroInstance = hero(ctx);
+  let heroInstance = Hero(ctx);
   let aliensInstance = AliensZone(ctx);
 
   let bulletList: IBullet[] = [];
@@ -19,10 +19,10 @@ export function GameCore(canvasRef: RefObject<HTMLCanvasElement>) {
   const shoot = () => {
     let jutShoot = true;
     const keyPress = (event: KeyboardEvent) => {
-      if (jutShoot) {
+      if (jutShoot && event.key == " ") {
         jutShoot = false;
         let bulletInstance = Bullet(ctx);
-        bulletInstance.setup(500, 500);
+        bulletInstance.setup(heroInstance.x + 45, heroInstance.y + 45);
         bulletList.push(bulletInstance);
       }
     };
@@ -34,7 +34,7 @@ export function GameCore(canvasRef: RefObject<HTMLCanvasElement>) {
   };
 
   const main = () => {
-    heroInstance.setup();
+    heroInstance.setup(0, 0);
     aliensInstance.setup(0, 0);
     shoot();
   };
@@ -42,7 +42,6 @@ export function GameCore(canvasRef: RefObject<HTMLCanvasElement>) {
   const loop = (deltaTime: number) => {
     heroInstance.render(deltaTime);
     aliensInstance.render(deltaTime);
-    //console.log(aliensInstance.aliensList);
 
     bulletList = bulletList.filter((bullet) => bullet.die == false);
 
@@ -65,7 +64,7 @@ export function GameCore(canvasRef: RefObject<HTMLCanvasElement>) {
       array2.forEach((alien) => {
         if (detectCollision(bullet, alien)) {
           alien.die = true;
-          bullet.die = true
+          bullet.die = true;
         }
       });
     });

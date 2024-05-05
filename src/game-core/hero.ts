@@ -3,29 +3,31 @@ interface Hero {
   y: number;
   height: number;
   width: number;
+  setup(x: number, y: number): void;
+  render(delta: number): void;
 }
 
-export const hero = (ctx: CanvasRenderingContext2D) => {
-  let heroInstance: Hero = { x: 600, y: 600, height: 80, width: 80 };
-  let spaceRange = { startX: 200, startY: 100, endX: 1720, endY: 0 };
+export function Hero(ctx: CanvasRenderingContext2D): Hero {
+  let x: number = 0;
+  let y: number = 0;
+  let height: number = 100;
+  let width: number = 100;
   let pressedKeys: Record<string, boolean> = {};
 
-  const setup = () => {
-    ctx.fillStyle = "red";
-    heroInstance = { x: 600, y: 600, height: 80, width: 80 };
-    spaceRange = { startX: 200, startY: 100, endX: 1720, endY: 0 };
-    pressedKeys = {};
-  };
+  function setup(xPos: number, yPos: number): void {
+    x = xPos;
+    y = yPos;
+  }
 
-  const render = (delta: number) => {
+  function render(delta: number): void {
     const speed = (50 / 100) * delta;
+    ctx.fillStyle = "red";
+    ctx.fillRect(x, y, width, height);
 
-    ctx.fillRect(heroInstance.x, heroInstance.y, 80, 80);
-
-    if (pressedKeys["ArrowLeft"]) heroInstance.x -= speed;
-    if (pressedKeys["ArrowRight"]) heroInstance.x += speed;
-    if (pressedKeys["ArrowUp"]) heroInstance.y -= speed;
-    if (pressedKeys["ArrowDown"]) heroInstance.y += speed;
+    if (pressedKeys["ArrowLeft"]) x -= speed;
+    if (pressedKeys["ArrowRight"]) x += speed;
+    if (pressedKeys["ArrowUp"]) y -= speed;
+    if (pressedKeys["ArrowDown"]) y += speed;
 
     const keyPress = (event: KeyboardEvent) => {
       pressedKeys = { ...pressedKeys, [event.key]: true };
@@ -37,7 +39,20 @@ export const hero = (ctx: CanvasRenderingContext2D) => {
 
     document.addEventListener("keydown", keyPress);
     document.addEventListener("keyup", keyReleased);
+  }
+
+  const hero = {
+    get x() {
+      return x;
+    },
+    get y() {
+      return y;
+    },
+    height,
+    width,
+    setup,
+    render,
   };
 
-  return { setup, render };
-};
+  return hero;
+}

@@ -20,13 +20,13 @@ export function Bullet(ctx: CanvasRenderingContext2D): IBullet {
   let isDead = false;
 
   function setup(xPos: number, yPos: number): void {
-    ctx.fillStyle = "green";
     x = xPos;
     y = yPos;
   }
 
-  function render(delta: number): void | boolean {
-    let speed = velocity * delta; // Ajuste da velocidade de acordo com delta
+  function render(delta: number): void {
+    let speed = velocity * delta;
+    ctx.fillStyle = "green";
     ctx.fillRect(x, y, width, height);
 
     if (y > 0 && x < ctx.canvas.width && y < ctx.canvas.height && x > 0) {
