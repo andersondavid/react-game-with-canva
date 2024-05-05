@@ -1,7 +1,7 @@
 import Head from "next/head";
 import { useEffect, useRef, useState } from "react";
 import styles from "../styles/Home.module.css";
-import { useGameCore } from "@/game-core/main";
+import { GameCore } from "@/game-core/main";
 
 export default function Home() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -9,7 +9,7 @@ export default function Home() {
     height: number;
     width: number;
   }>();
-  const gameCore = useGameCore;
+  const gameCore = GameCore;
   useEffect(() => {
     gameCore(canvasRef);
   });

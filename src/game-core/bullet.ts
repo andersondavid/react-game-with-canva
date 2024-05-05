@@ -1,40 +1,60 @@
-interface IBullet {
+import { v4 as uuidv4 } from "uuid";
+export interface IBullet {
+  id: string;
   x: number;
   y: number;
+  height: number;
+  width: number;
   setup(x: number, y: number): void;
   render(delta: number): void;
+  die: boolean;
 }
 
 export function Bullet(ctx: CanvasRenderingContext2D): IBullet {
-  let speed = 1;
+  const id = uuidv4();
+  let velocity = 0.3;
   let x = 0;
   let y = 0;
   let width = 10;
   let height = 10;
+  let isDead = false;
 
   function setup(xPos: number, yPos: number): void {
     ctx.fillStyle = "green";
-
-    ctx.closePath();
-    ctx.stroke();
     x = xPos;
     y = yPos;
   }
 
-  function render(delta: number): void {
-    speed = delta; // Ajuste da velocidade de acordo com delta
+  function render(delta: number): void | boolean {
+    let speed = velocity * delta; // Ajuste da velocidade de acordo com delta
     ctx.fillRect(x, y, width, height);
 
     if (y > 0 && x < ctx.canvas.width && y < ctx.canvas.height && x > 0) {
-      y += speed;
-      console.log(y);
+      y -= speed;
+    } else {
+      isDead = true;
     }
   }
 
-  return {
-    x,
-    y,
+  const bullet: IBullet = {
+    id,
+    height,
+    width,
     setup,
     render,
+    get x() {
+      return x;
+    },
+    get y() {
+      return y;
+    },
+    set die(state) {
+      isDead = state;
+    },
+    get die() {
+      return isDead;
+    },
   };
+
+  return bullet;
 }

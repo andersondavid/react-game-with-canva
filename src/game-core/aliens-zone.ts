@@ -1,26 +1,42 @@
-interface Aliens {
-  positionX: number;
-  positionY: number;
+import { v4 as uuidv4 } from "uuid";
+
+export interface IAliens {
+  id: string;
+  x: number;
+  y: number;
   height: number;
   width: number;
+  die: boolean;
+}
+export interface IAliensZone {
+  setup(x: number, y: number): void;
+  render(delta: number): void;
+  aliensList: IAliens[];
 }
 
-export const aliensZone = (ctx: CanvasRenderingContext2D) => {
-  const aliensList: Aliens[] = [];
-  const spaceRange = { startX: 200, startY: 100, endX: 1720, endY: 0 };
-
+export function AliensZone(ctx: CanvasRenderingContext2D): IAliensZone {
+  const spaceRange = {
+    startX: 0,
+    startY: 0,
+    endX: ctx.canvas.width,
+    endY: ctx.canvas.height,
+  };
+  const velocity = 30;
+  let aliensList: IAliens[] = [];
   let moveToRight = true;
-  let positionMain = { x: spaceRange.startX, y: spaceRange.startY };
+  let positionMain = { x: 0, y: 0 };
 
-  const setup = () => {
+  function setup() {
     const createAliens = () => {
       for (let i = 0; i < 10; i++) {
         for (let j = 0; j < 3; j++) {
           aliensList.push({
-            positionX: i * 100,
-            positionY: j * 100,
+            x: i * 100,
+            y: j * 100,
             height: 100,
             width: 100,
+            die: false,
+            id: uuidv4(),
           });
         }
       }
@@ -29,29 +45,15 @@ export const aliensZone = (ctx: CanvasRenderingContext2D) => {
     if (aliensList.length <= 0) {
       createAliens();
     }
-  };
+  }
 
-  const render = (delta: number) => {
-    const speed = 10 / 100 * delta;
-    const renderAliens = () => {
-      aliensList.forEach((alien, index) => {
-        ctx.fillStyle = "blue";
-        ctx.fillRect(
-          alien.positionX + positionMain.x - 40,
-          alien.positionY + positionMain.y - 40,
-          80,
-          80
-        );
+  function render(delta: number) {
+    const speed = (velocity / 100) * delta;
 
-        ctx.strokeStyle = "red";
-        ctx.strokeRect(
-          alien.positionX + positionMain.x - 50,
-          alien.positionY + positionMain.y - 50,
-          alien.width,
-          alien.height
-        );
-      });
-    };
+    aliensList.forEach((alien) => {
+      ctx.fillStyle = "blue";
+      ctx.fillRect(alien.x, alien.y, alien.width, alien.height);
+    });
 
     const animateAliens = () => {
       if (moveToRight) {
@@ -60,16 +62,33 @@ export const aliensZone = (ctx: CanvasRenderingContext2D) => {
         positionMain.x -= speed;
       }
 
-      if (positionMain.x + 900 >= spaceRange.endX) {
+      aliensList = aliensList.map((alien) => ({
+        ...alien,
+        x: alien.x + (moveToRight ? speed : -speed),
+      }));
+
+      if (positionMain.x + 1000 >= spaceRange.endX) {
         moveToRight = false;
       } else if (positionMain.x <= spaceRange.startX) {
         moveToRight = true;
       }
     };
-
-    renderAliens();
     animateAliens();
+
+    aliensList = aliensList.filter((alien) => !alien.die);
+  }
+
+  const aliensZone = {
+    get aliensList() {
+      return aliensList;
+    },
+
+    set aliensList(newArr) {
+      this.aliensList = newArr;
+    },
+    setup,
+    render,
   };
 
-  return { setup, render };
-};
+  return aliensZone;
+}

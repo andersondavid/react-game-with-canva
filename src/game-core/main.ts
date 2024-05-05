@@ -1,9 +1,9 @@
 import { RefObject } from "react";
-import { aliensZone } from "./aliens-zone";
+import { AliensZone, IAliens } from "./aliens-zone";
 import { hero } from "./hero";
-import { Bullet } from "./bullet";
+import { Bullet, IBullet } from "./bullet";
 
-export const useGameCore = (canvasRef: RefObject<HTMLCanvasElement>) => {
+export function GameCore(canvasRef: RefObject<HTMLCanvasElement>) {
   let lastFrameTime = 0;
 
   if (!canvasRef) return;
@@ -12,20 +12,22 @@ export const useGameCore = (canvasRef: RefObject<HTMLCanvasElement>) => {
   if (!ctx) return;
 
   let heroInstance = hero(ctx);
-  let aliensInstance = aliensZone(ctx);
+  let aliensInstance = AliensZone(ctx);
 
-  let bulletList: any[] = [];
+  let bulletList: IBullet[] = [];
 
   const shoot = () => {
-    let jutShoot = false;
+    let jutShoot = true;
     const keyPress = (event: KeyboardEvent) => {
-      jutShoot = true;
-      let bulletInstance = Bullet(ctx);
-      bulletInstance.setup(500, 500);
-      bulletList.push(bulletInstance);
+      if (jutShoot) {
+        jutShoot = false;
+        let bulletInstance = Bullet(ctx);
+        bulletInstance.setup(500, 500);
+        bulletList.push(bulletInstance);
+      }
     };
 
-    const keyReleased = (event: KeyboardEvent) => (jutShoot = false);
+    const keyReleased = (event: KeyboardEvent) => (jutShoot = true);
 
     document.addEventListener("keydown", keyPress);
     document.addEventListener("keyup", keyReleased);
@@ -33,18 +35,40 @@ export const useGameCore = (canvasRef: RefObject<HTMLCanvasElement>) => {
 
   const main = () => {
     heroInstance.setup();
-    aliensInstance.setup();
+    aliensInstance.setup(0, 0);
     shoot();
   };
 
   const loop = (deltaTime: number) => {
     heroInstance.render(deltaTime);
     aliensInstance.render(deltaTime);
-    bulletList.forEach((bullet) => bullet.render(deltaTime));
+    //console.log(aliensInstance.aliensList);
+
+    bulletList = bulletList.filter((bullet) => bullet.die == false);
+
+    bulletList.forEach((bullet) => {
+      bullet.render(deltaTime);
+    });
+
+    detectCollisionsForAliens(bulletList, aliensInstance.aliensList);
   };
 
-  function colision(){
-    
+  function detectCollisionsForAliens(array1: IBullet[], array2: IAliens[]) {
+    function detectCollision(bullet: IBullet, alien: IAliens) {
+      const overlapX =
+        bullet.x < alien.x + alien.width && bullet.x + bullet.width > alien.x;
+      const overlapY =
+        bullet.y < alien.y + alien.height && bullet.y + bullet.height > alien.y;
+      return overlapX && overlapY;
+    }
+    array1.forEach((bullet) => {
+      array2.forEach((alien) => {
+        if (detectCollision(bullet, alien)) {
+          alien.die = true;
+          bullet.die = true
+        }
+      });
+    });
   }
 
   const animate = (currentTime: number) => {
@@ -61,4 +85,4 @@ export const useGameCore = (canvasRef: RefObject<HTMLCanvasElement>) => {
   });
 
   main();
-};
+}
