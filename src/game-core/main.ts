@@ -1,6 +1,7 @@
 import { RefObject } from "react";
 import { aliensZone } from "./aliens-zone";
 import { hero } from "./hero";
+import { Bullet } from "./bullet";
 
 export const useGameCore = (canvasRef: RefObject<HTMLCanvasElement>) => {
   let lastFrameTime = 0;
@@ -8,24 +9,49 @@ export const useGameCore = (canvasRef: RefObject<HTMLCanvasElement>) => {
   if (!canvasRef) return;
   const canvas = canvasRef.current;
   const ctx = canvas?.getContext("2d");
-  if (!ctx || !canvas) return;
+  if (!ctx) return;
 
   let heroInstance = hero(ctx);
-  let aliensInstace = aliensZone(ctx)
+  let aliensInstance = aliensZone(ctx);
 
-  const setupMain = () => {
-    heroInstance.setup();
-    aliensInstace.setup()
+  let bulletList: any[] = [];
+
+  const shoot = () => {
+    let jutShoot = false;
+    const keyPress = (event: KeyboardEvent) => {
+      jutShoot = true;
+      let bulletInstance = Bullet(ctx);
+      bulletInstance.setup(500, 500);
+      bulletList.push(bulletInstance);
+    };
+
+    const keyReleased = (event: KeyboardEvent) => (jutShoot = false);
+
+    document.addEventListener("keydown", keyPress);
+    document.addEventListener("keyup", keyReleased);
   };
 
-  const animate = (currentTime: number) => {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    const deltaTime = currentTime - lastFrameTime;
+  const main = () => {
+    heroInstance.setup();
+    aliensInstance.setup();
+    shoot();
+  };
 
+  const loop = (deltaTime: number) => {
     heroInstance.render(deltaTime);
-    aliensInstace.render(deltaTime)
-    lastFrameTime = currentTime;
+    aliensInstance.render(deltaTime);
+    bulletList.forEach((bullet) => bullet.render(deltaTime));
+  };
 
+  function colision(){
+    
+  }
+
+  const animate = (currentTime: number) => {
+    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+    const deltaTime = currentTime - lastFrameTime;
+    loop(deltaTime);
+    lastFrameTime = currentTime;
     requestAnimationFrame(animate);
   };
 
@@ -34,5 +60,5 @@ export const useGameCore = (canvasRef: RefObject<HTMLCanvasElement>) => {
     animate(timestamp);
   });
 
-  setupMain();
+  main();
 };
