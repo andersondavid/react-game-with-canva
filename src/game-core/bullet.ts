@@ -5,8 +5,10 @@ export interface IBullet {
   y: number;
   height: number;
   width: number;
-  setup(x: number, y: number): void;
+  setup(x: number, y: number, setShooter: "hero" | "alien"): void;
   render(delta: number): void;
+  shooter: string;
+  fromShooter: string;
   die: boolean;
 }
 
@@ -18,19 +20,20 @@ export function Bullet(ctx: CanvasRenderingContext2D): IBullet {
   let width = 10;
   let height = 10;
   let isDead = false;
+  let fromShooter = "";
 
-  function setup(xPos: number, yPos: number): void {
+  function setup(xPos: number, yPos: number, setShooter: string): void {
     x = xPos;
     y = yPos;
+    fromShooter = setShooter;
   }
 
   function render(delta: number): void {
     let speed = velocity * delta;
     ctx.fillStyle = "green";
     ctx.fillRect(x, y, width, height);
-
     if (y > 0 && x < ctx.canvas.width && y < ctx.canvas.height && x > 0) {
-      y -= speed;
+      y = y + (fromShooter == "hero" ? -speed : speed);
     } else {
       isDead = true;
     }
@@ -42,6 +45,13 @@ export function Bullet(ctx: CanvasRenderingContext2D): IBullet {
     width,
     setup,
     render,
+    fromShooter,
+    set shooter(from: string) {
+      fromShooter = from;
+    },
+    get shooter() {
+      return fromShooter;
+    },
     get x() {
       return x;
     },

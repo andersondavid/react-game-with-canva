@@ -13,8 +13,9 @@ export function GameCore(canvasRef: RefObject<HTMLCanvasElement>) {
 
   let heroInstance = Hero(ctx);
   let aliensInstance = AliensZone(ctx);
-
   let bulletList: IBullet[] = [];
+
+  let alienShootInterval = 2000;
 
   const shoot = () => {
     let jutShoot = true;
@@ -22,7 +23,7 @@ export function GameCore(canvasRef: RefObject<HTMLCanvasElement>) {
       if (jutShoot && event.key == " ") {
         jutShoot = false;
         let bulletInstance = Bullet(ctx);
-        bulletInstance.setup(heroInstance.x + 45, heroInstance.y + 45);
+        bulletInstance.setup(heroInstance.x + 45, heroInstance.y + 45, "hero");
         bulletList.push(bulletInstance);
       }
     };
@@ -33,8 +34,36 @@ export function GameCore(canvasRef: RefObject<HTMLCanvasElement>) {
     document.addEventListener("keyup", keyReleased);
   };
 
+  const alienShoot = (deltaTime: number) => {
+    let interval = (alienShootInterval -= deltaTime);
+
+    if (interval <= 0) {
+      let rand = Math.random();
+      let numberOfAliens = aliensInstance.aliensList.length;
+      let randIndex = Math.floor(rand * numberOfAliens);
+      let selectedAlien = aliensInstance.aliensList[randIndex];
+
+      let bulletInstance = Bullet(ctx);
+      bulletInstance.setup(selectedAlien.x + 45, selectedAlien.y + 45, "alien");
+      bulletInstance.fromShooter = "alien";
+      bulletList.push(bulletInstance);
+      alienShootInterval = 1000;
+    }
+
+    ctx.font = "30px Arial";
+    ctx.fillStyle = "white";
+    ctx.textAlign = "left";
+
+    // Define a posição do texto no canto superior
+    var x = 10; // Posição horizontal
+    var y = 40; // Posição vertical
+
+    // Desenha o texto no canvas
+    ctx.fillText(bulletList.length + '', x, y);
+  };
+
   const main = () => {
-    heroInstance.setup(0, 0);
+    heroInstance.setup(555, 555);
     aliensInstance.setup(0, 0);
     shoot();
   };
@@ -49,6 +78,7 @@ export function GameCore(canvasRef: RefObject<HTMLCanvasElement>) {
       bullet.render(deltaTime);
     });
 
+    if (aliensInstance.aliensList.length > 0) alienShoot(deltaTime);
     detectCollisionsForAliens(bulletList, aliensInstance.aliensList);
   };
 
@@ -62,7 +92,7 @@ export function GameCore(canvasRef: RefObject<HTMLCanvasElement>) {
     }
     array1.forEach((bullet) => {
       array2.forEach((alien) => {
-        if (detectCollision(bullet, alien)) {
+        if (detectCollision(bullet, alien) && bullet.shooter == "hero") {
           alien.die = true;
           bullet.die = true;
         }
