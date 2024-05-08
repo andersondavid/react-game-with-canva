@@ -17,6 +17,17 @@ export function Hero(ctx: CanvasRenderingContext2D): Hero {
   function setup(xPos: number, yPos: number): void {
     x = xPos;
     y = yPos;
+
+    document.addEventListener("keydown", keyPress);
+    document.addEventListener("keyup", keyReleased);
+  }
+
+  function keyPress(event: KeyboardEvent) {
+    pressedKeys = { ...pressedKeys, [event.key]: true };
+  }
+
+  function keyReleased(event: KeyboardEvent) {
+    pressedKeys = { ...pressedKeys, [event.key]: false };
   }
 
   function render(delta: number): void {
@@ -28,17 +39,6 @@ export function Hero(ctx: CanvasRenderingContext2D): Hero {
     if (pressedKeys["ArrowRight"]) x += speed;
     if (pressedKeys["ArrowUp"]) y -= speed;
     if (pressedKeys["ArrowDown"]) y += speed;
-
-    const keyPress = (event: KeyboardEvent) => {
-      pressedKeys = { ...pressedKeys, [event.key]: true };
-    };
-
-    const keyReleased = (event: KeyboardEvent) => {
-      pressedKeys = { ...pressedKeys, [event.key]: false };
-    };
-
-    document.addEventListener("keydown", keyPress);
-    document.addEventListener("keyup", keyReleased);
   }
 
   const hero = {
