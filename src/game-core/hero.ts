@@ -10,8 +10,8 @@ interface Hero {
 export function Hero(ctx: CanvasRenderingContext2D): Hero {
   let x: number = 0;
   let y: number = 0;
-  let height: number = 100;
-  let width: number = 100;
+  let height: number = ctx.canvas.width / 20;
+  let width: number = ctx.canvas.width / 20;
   let pressedKeys: Record<string, boolean> = {};
 
   function setup(xPos: number, yPos: number): void {

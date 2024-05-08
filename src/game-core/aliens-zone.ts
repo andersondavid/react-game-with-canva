@@ -26,15 +26,18 @@ export function AliensZone(ctx: CanvasRenderingContext2D): IAliensZone {
   let moveToRight = true;
   let positionMain = { x: 0, y: 0 };
 
+  const alienH = ctx.canvas.width / 20
+  const alienW = ctx.canvas.width / 20
+
   function setup() {
     const createAliens = () => {
       for (let i = 0; i < 10; i++) {
         for (let j = 0; j < 3; j++) {
           aliensList.push({
-            x: i * 100,
-            y: j * 100,
-            height: 100,
-            width: 100,
+            x: i * alienW,
+            y: j * alienH,
+            height: alienH,
+            width: alienW,
             die: false,
             id: uuidv4(),
           });
@@ -67,9 +70,9 @@ export function AliensZone(ctx: CanvasRenderingContext2D): IAliensZone {
         x: alien.x + (moveToRight ? speed : -speed),
       }));
 
-      if (positionMain.x + 1000 >= spaceRange.endX) {
+      if (positionMain.x + spaceRange.endX / 1.7 >= spaceRange.endX) {
         moveToRight = false;
-      } else if (positionMain.x <= spaceRange.startX) {
+      } else if (positionMain.x <= spaceRange.startX + spaceRange.endX / 10) {
         moveToRight = true;
       }
     };
