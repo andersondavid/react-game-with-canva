@@ -131,7 +131,6 @@ export function GameCore(canvasRef: RefObject<HTMLCanvasElement>) {
       gameOverScreen();
     }
 
-    console.log(gameState);
 
     lastFrameTime = currentTime;
     requestAnimationFrame(animate);
