@@ -33,8 +33,8 @@ export default function Home() {
         <canvas
           ref={canvasRef}
           className={styles.mainCanvas}
-          height={windowsSize?.height}
-          width={windowsSize?.width}
+          height={768}
+          width={1280}
         ></canvas>
       </main>
     </>

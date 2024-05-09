@@ -2,6 +2,7 @@ import { RefObject } from "react";
 import { AliensZone, IAliens } from "./aliens-zone";
 import { Hero } from "./hero";
 import { Bullet, IBullet } from "./bullet";
+let gameState: string = "running";
 
 export function GameCore(canvasRef: RefObject<HTMLCanvasElement>) {
   let lastFrameTime = 0;
@@ -14,7 +15,6 @@ export function GameCore(canvasRef: RefObject<HTMLCanvasElement>) {
   let heroInstance = Hero(ctx);
   let aliensInstance = AliensZone(ctx);
   let bulletList: IBullet[] = [];
-
   let alienShootInterval = 2000;
 
   const shoot = () => {
@@ -23,7 +23,11 @@ export function GameCore(canvasRef: RefObject<HTMLCanvasElement>) {
       if (jutShoot && event.key == " ") {
         jutShoot = false;
         let bulletInstance = Bullet(ctx);
-        bulletInstance.setup(heroInstance.x + 45, heroInstance.y + 45, "hero");
+        bulletInstance.setup(
+          heroInstance.x + heroInstance.width / 2,
+          heroInstance.y + heroInstance.width / 2,
+          "hero"
+        );
         bulletList.push(bulletInstance);
       }
     };
@@ -49,17 +53,6 @@ export function GameCore(canvasRef: RefObject<HTMLCanvasElement>) {
       bulletList.push(bulletInstance);
       alienShootInterval = 1000;
     }
-
-    ctx.font = "30px Arial";
-    ctx.fillStyle = "white";
-    ctx.textAlign = "left";
-
-    // Define a posição do texto no canto superior
-    var x = 10; // Posição horizontal
-    var y = 40; // Posição vertical
-
-    // Desenha o texto no canvas
-    ctx.fillText(bulletList.length + '', x, y);
   };
 
   const main = () => {
@@ -80,6 +73,14 @@ export function GameCore(canvasRef: RefObject<HTMLCanvasElement>) {
 
     if (aliensInstance.aliensList.length > 0) alienShoot(deltaTime);
     detectCollisionsForAliens(bulletList, aliensInstance.aliensList);
+    detectCollisionsForHero(bulletList);
+
+    ctx.font = "30px Arial";
+    ctx.fillStyle = "white";
+    ctx.textAlign = "left";
+    var x = 10;
+    var y = 40;
+    ctx.fillText(heroInstance.lifes + "", x, y);
   };
 
   function detectCollisionsForAliens(array1: IBullet[], array2: IAliens[]) {
@@ -100,12 +101,50 @@ export function GameCore(canvasRef: RefObject<HTMLCanvasElement>) {
     });
   }
 
+  function detectCollisionsForHero(array1: IBullet[]) {
+    function detectCollision(bullet: IBullet, hero: any) {
+      const overlapX =
+        bullet.x < hero.x + hero.width && bullet.x + bullet.width > hero.x;
+      const overlapY =
+        bullet.y < hero.y + hero.height && bullet.y + bullet.height > hero.y;
+      return overlapX && overlapY;
+    }
+    array1.forEach((bullet) => {
+      if (detectCollision(bullet, heroInstance) && bullet.shooter == "alien") {
+        heroInstance.lifes = heroInstance.lifes - 1;
+        bullet.die = true;
+
+        if (heroInstance.lifes == 0) {
+          gameState = "gameover";
+        }
+      }
+    });
+  }
+
   const animate = (currentTime: number) => {
-    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
     const deltaTime = currentTime - lastFrameTime;
-    loop(deltaTime);
+
+    if (gameState == "running") {
+      ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+      loop(deltaTime);
+    } else if (gameState == "gameover") {
+      gameOverScreen();
+    }
+
+    console.log(gameState);
+
     lastFrameTime = currentTime;
     requestAnimationFrame(animate);
+  };
+
+  const gameOverScreen = () => {
+    ctx.fillStyle = "rgba(0, 0, 0, 0.5)"; // cor vermelha com 50% de opacidade
+    ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+
+    ctx.font = "50px Impact";
+    ctx.fillStyle = "red";
+    ctx.textAlign = "left";
+    ctx.fillText("Game Over", 500, 500);
   };
 
   requestAnimationFrame(function (timestamp) {

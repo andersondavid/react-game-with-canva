@@ -17,21 +17,24 @@ export function Bullet(ctx: CanvasRenderingContext2D): IBullet {
   let velocity = 0.3;
   let x = 0;
   let y = 0;
-  let width = 10;
-  let height = 10;
+  let width = ctx.canvas.width / 50;
+  let height = ctx.canvas.width / 50;
   let isDead = false;
   let fromShooter = "";
 
+  let bulletSprite = new Image();
+
   function setup(xPos: number, yPos: number, setShooter: string): void {
-    x = xPos;
+    x = xPos - width / 2;
     y = yPos;
     fromShooter = setShooter;
+
+    bulletSprite.src = "/bullet.png";
   }
 
   function render(delta: number): void {
     let speed = velocity * delta;
-    ctx.fillStyle = "green";
-    ctx.fillRect(x, y, width, height);
+    ctx.drawImage(bulletSprite, x, y, width, height);
     if (y > 0 && x < ctx.canvas.width && y < ctx.canvas.height && x > 0) {
       y = y + (fromShooter == "hero" ? -speed : speed);
     } else {

@@ -29,6 +29,9 @@ export function AliensZone(ctx: CanvasRenderingContext2D): IAliensZone {
   const alienH = ctx.canvas.width / 20
   const alienW = ctx.canvas.width / 20
 
+  let alienSprite = new Image();
+
+
   function setup() {
     const createAliens = () => {
       for (let i = 0; i < 10; i++) {
@@ -48,14 +51,16 @@ export function AliensZone(ctx: CanvasRenderingContext2D): IAliensZone {
     if (aliensList.length <= 0) {
       createAliens();
     }
+
+    alienSprite.src = "/alien.png";
+
   }
 
   function render(delta: number) {
     const speed = (velocity / 100) * delta;
 
     aliensList.forEach((alien) => {
-      ctx.fillStyle = "blue";
-      ctx.fillRect(alien.x, alien.y, alien.width, alien.height);
+      ctx.drawImage(alienSprite, alien.x, alien.y, alien.width, alien.height)
     });
 
     const animateAliens = () => {
