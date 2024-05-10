@@ -129,8 +129,15 @@ export function GameCore(canvasRef: RefObject<HTMLCanvasElement>) {
 
   const animate = (currentTime: number) => {
     const deltaTime = currentTime - lastFrameTime;
-    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-    loop(deltaTime);
+
+    console.log(gameState);
+    
+    if (gameState == "running") {
+      ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+      loop(deltaTime);
+    } else if (gameState == "gameover") {
+      gameOverScreen();
+    }
     lastFrameTime = currentTime;
     requestAnimationFrame(animate);
   };
@@ -151,12 +158,7 @@ export function GameCore(canvasRef: RefObject<HTMLCanvasElement>) {
 
   requestAnimationFrame(function (timestamp) {
     lastFrameTime = timestamp;
-
-    if (gameState == "running") {
-      animate(timestamp);
-    } else if (gameState == "gameover") {
-      gameOverScreen();
-    }
+    animate(timestamp)
   });
 
   main();
