@@ -17,6 +17,8 @@ export function GameCore(canvasRef: RefObject<HTMLCanvasElement>) {
   let bulletList: IBullet[] = [];
   let alienShootInterval = 2000;
 
+  let points = 0;
+
   const shoot = () => {
     let jutShoot = true;
     const keyPress = (event: KeyboardEvent) => {
@@ -61,27 +63,12 @@ export function GameCore(canvasRef: RefObject<HTMLCanvasElement>) {
     shoot();
   };
 
-  const loop = (deltaTime: number) => {
-    heroInstance.render(deltaTime);
-    aliensInstance.render(deltaTime);
-
-    bulletList = bulletList.filter((bullet) => bullet.die == false);
-
-    bulletList.forEach((bullet) => {
-      bullet.render(deltaTime);
-    });
-
-    if (aliensInstance.aliensList.length > 0) alienShoot(deltaTime);
-    detectCollisionsForAliens(bulletList, aliensInstance.aliensList);
-    detectCollisionsForHero(bulletList);
-
-    ctx.font = "30px Arial";
+  function hud(ctx: CanvasRenderingContext2D) {
+    ctx.font = "20px Impact";
     ctx.fillStyle = "white";
     ctx.textAlign = "left";
-    var x = 10;
-    var y = 40;
-    ctx.fillText(heroInstance.lifes + "", x, y);
-  };
+    ctx.fillText(`Lifes ${heroInstance.lifes} | Points: ${points}`, 25, 25);
+  }
 
   function detectCollisionsForAliens(array1: IBullet[], array2: IAliens[]) {
     function detectCollision(bullet: IBullet, alien: IAliens) {
@@ -96,6 +83,7 @@ export function GameCore(canvasRef: RefObject<HTMLCanvasElement>) {
         if (detectCollision(bullet, alien) && bullet.shooter == "hero") {
           alien.die = true;
           bullet.die = true;
+          points += 1;
         }
       });
     });
@@ -121,17 +109,28 @@ export function GameCore(canvasRef: RefObject<HTMLCanvasElement>) {
     });
   }
 
+  const loop = (deltaTime: number) => {
+    heroInstance.render(deltaTime);
+    aliensInstance.render(deltaTime);
+
+    bulletList = bulletList.filter((bullet) => bullet.die == false);
+    bulletList.forEach((bullet) => {
+      bullet.render(deltaTime);
+    });
+
+    if (aliensInstance.aliensList.length > 0) alienShoot(deltaTime);
+    detectCollisionsForAliens(bulletList, aliensInstance.aliensList);
+    detectCollisionsForHero(bulletList);
+
+    hud(ctx);
+
+    if (aliensInstance.aliensList.length <= 0) aliensInstance.setup(500, 0);
+  };
+
   const animate = (currentTime: number) => {
     const deltaTime = currentTime - lastFrameTime;
-
-    if (gameState == "running") {
-      ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-      loop(deltaTime);
-    } else if (gameState == "gameover") {
-      gameOverScreen();
-    }
-
-
+    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+    loop(deltaTime);
     lastFrameTime = currentTime;
     requestAnimationFrame(animate);
   };
@@ -143,12 +142,21 @@ export function GameCore(canvasRef: RefObject<HTMLCanvasElement>) {
     ctx.font = "50px Impact";
     ctx.fillStyle = "red";
     ctx.textAlign = "left";
-    ctx.fillText("Game Over", 500, 500);
+    ctx.fillText("Game Over", 510, 300);
+    ctx.font = "30px Impact";
+    ctx.fillStyle = "white";
+    ctx.textAlign = "left";
+    ctx.fillText(`Pontos: ${points}`, 510, 340);
   };
 
   requestAnimationFrame(function (timestamp) {
     lastFrameTime = timestamp;
-    animate(timestamp);
+
+    if (gameState == "running") {
+      animate(timestamp);
+    } else if (gameState == "gameover") {
+      gameOverScreen();
+    }
   });
 
   main();

@@ -15,24 +15,17 @@ export interface IAliensZone {
 }
 
 export function AliensZone(ctx: CanvasRenderingContext2D): IAliensZone {
-  const spaceRange = {
-    startX: 0,
-    startY: 0,
-    endX: ctx.canvas.width,
-    endY: ctx.canvas.height,
-  };
   const velocity = 30;
   let aliensList: IAliens[] = [];
   let moveToRight = true;
   let positionMain = { x: 0, y: 0 };
 
-  const alienH = ctx.canvas.width / 20
-  const alienW = ctx.canvas.width / 20
+  const alienH = ctx.canvas.width / 20;
+  const alienW = ctx.canvas.width / 20;
 
   let alienSprite = new Image();
 
-
-  function setup() {
+  function setup(x: number, y: number) {
     const createAliens = () => {
       for (let i = 0; i < 10; i++) {
         for (let j = 0; j < 3; j++) {
@@ -53,14 +46,13 @@ export function AliensZone(ctx: CanvasRenderingContext2D): IAliensZone {
     }
 
     alienSprite.src = "/alien.png";
-
   }
 
   function render(delta: number) {
     const speed = (velocity / 100) * delta;
 
     aliensList.forEach((alien) => {
-      ctx.drawImage(alienSprite, alien.x, alien.y, alien.width, alien.height)
+      ctx.drawImage(alienSprite, alien.x, alien.y, alien.width, alien.height);
     });
 
     const animateAliens = () => {
@@ -75,9 +67,9 @@ export function AliensZone(ctx: CanvasRenderingContext2D): IAliensZone {
         x: alien.x + (moveToRight ? speed : -speed),
       }));
 
-      if (positionMain.x + spaceRange.endX / 1.7 >= spaceRange.endX) {
+      if (positionMain.x + 10 * alienW >= ctx.canvas.width - 100) {
         moveToRight = false;
-      } else if (positionMain.x <= spaceRange.startX + spaceRange.endX / 10) {
+      } else if (positionMain.x <= 100) {
         moveToRight = true;
       }
     };

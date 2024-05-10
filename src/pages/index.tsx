@@ -5,21 +5,11 @@ import { GameCore } from "@/game-core/main";
 
 export default function Home() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [windowsSize, setWindowsSize] = useState<{
-    height: number;
-    width: number;
-  }>();
+
   const gameCore = GameCore;
   useEffect(() => {
     gameCore(canvasRef);
   }, [gameCore]);
-
-  useEffect(() => {
-    setWindowsSize({
-      height: window.innerHeight,
-      width: window.innerWidth,
-    });
-  }, []);
 
   return (
     <>
@@ -30,12 +20,15 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main className={``}>
-        <canvas
-          ref={canvasRef}
-          className={styles.mainCanvas}
-          height={768}
-          width={1280}
-        ></canvas>
+        <div style={{ minWidth: 1280 }}>
+          <canvas
+            style={{ minWidth: 1280 }}
+            ref={canvasRef}
+            className={styles.mainCanvas}
+            height={720}
+            width={1280}
+          ></canvas>
+        </div>
       </main>
     </>
   );
